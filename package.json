@@ -1,0 +1,22 @@
+{
+  "name": "react-gulp-wrkflw",
+  "version": "0.0.1",
+  "description": "A skeleton project for creating a gulp-react workflow'",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-preset-react": "^6.5.0",
+    "browserify": "^13.0.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-uglify": "^1.5.3",
+    "vinyl-source-stream": "^1.1.0",
+    "vinyl-transform": "^1.0.0",
+    "watchify": "^3.7.0",
+    "wiredep": "^4.0.0"
+  }
+}

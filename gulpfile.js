@@ -6,58 +6,70 @@ var transform = require('vinyl-transform');
 var watchify = require('watchify');
 var uglify = require('gulp-uglify');
 var wiredep = require('wiredep').stream;
+var browserSync = require('browser-sync').create();
+var runSequence = require('run-sequence');
+var opts = {};
+opts.DIST_DIR = './dist';
+opts.TEMP_TRANSPILED_REACT_DIR ='./temp';
+opts.REACT_COMPONENTS_DIR = './app/js/components';
 
-gulp.task('babel-react', function() {
-    console.log('This is a test');
-    return gulp.src('./app/js/components/*.jsx').pipe(babel({
-        presets: ['react']
-    })).pipe(gulp.dest('.temp/'));
+/**
+ * Tasks
+ */
+
+
+gulp.task('serve:dev',function(){
+	runSequence('browserSync:init','build:dev','watch:dev')
 });
 
-gulp.task('concat',function(){
-	return gulp.src(['.temp/*.js'])
-		.pipe(concat('app.js'))
+gulp.task('build:dev',function(){
+	runSequence('build:dev-bower-dep','build:dev-react-components');
 });
 
-gulp.task('browserify', function() {
-	// var browserified = transform(function(filename){
-	// 	var b = browserify(filename);
-	// 	return b.bundle();
-	// });
-
-	// return gulp.src(['temp/main.js'])
-	// 		.pipe(browserified)
-	// 		.pipe(gulp.dest('dist/bundle.js'));
-	var bundle = browserify('temp/main.js',{
-		debug:true
-	}).bundle();
-	bundle.pipe(source('bundle.js'))
-		  .pipe(gulp.dest('dist'));
+gulp.task('build:dev-react-components',function(){
+	runSequence('react-babel','react-browserify');
 });
 
-gulp.task('bower',function(){
+gulp.task('build:dev-bower-dep',function(){
 	gulp.src('app/index.html')
 	.pipe(wiredep())
 	.pipe(gulp.dest('dist'));
+	//.pipe(browserSync.reload());
 });
 
-
-gulp.task('watch', function() {
-
-  var watcher  = watchify(browserify({
-    entries: ['.temp/Test.js'],
-    debug: true,
-    cache: {}, packageCache: {}, fullPaths: true
-  }));
-
-  return watcher.on('update', function () {
-    watcher.bundle()
-      .pipe(source('bundle.js'))
-      .pipe(gulp.dest('dist/src'))
-      console.log('Updated');
-  })
-    .bundle()
-    .pipe(source('build.js'))
-    .pipe(gulp.dest('dist/src'));
+gulp.task('watch:dev',function(){
+  gulp.watch('app/js/components/*.jsx',['build:dev-react-components']);
 });
+
+//Transpile React JSX components to JS and
+//move the transpiled files to a temp directory
+gulp.task('react-babel', function() {
+    return gulp.src('app/js/*/*.jsx').pipe(babel({
+        presets: ['react']
+    })).pipe(gulp.dest('temp/'));
+});
+
+//Browserify the transpiled JS files into a bundle file
+gulp.task('react-browserify', function() {
+	var bundle = browserify('temp/components/App.js',{
+		debug:true
+	}).bundle();
+	bundle.pipe(source('bundle.js'))
+		  .pipe(gulp.dest('dist'))
+		  .pipe(browserSync.reload({
+		  	stream:true
+		  }));
+});
+
+gulp.task('browserSync:init',function(){
+  browserSync.init({
+    server:{
+      baseDir:'dist',
+      routes:{
+      	'/bower_components':'bower_components'
+      }
+    }
+  });
+});
+
 

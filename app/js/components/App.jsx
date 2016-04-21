@@ -1,8 +1,9 @@
 var React = require('react');
+var reactDOM = require('react-dom');
 var List = require('./List');
 var ListItem = require('./ListItem');
 
-React.renderComponent(
+reactDOM.render(
 	<div>
 		<List/>
 		<ListItem/>

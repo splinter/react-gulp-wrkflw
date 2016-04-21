@@ -13,6 +13,10 @@ opts.DIST_DIR = './dist';
 opts.TEMP_TRANSPILED_REACT_DIR ='./temp';
 opts.REACT_COMPONENTS_DIR = './app/js/components';
 
+
+//TODO:
+//1. Support CSS
+//2. Add a production distribution task
 /**
  * Tasks
  */

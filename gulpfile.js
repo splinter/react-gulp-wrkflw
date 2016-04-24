@@ -8,6 +8,8 @@ var uglify = require('gulp-uglify');
 var wiredep = require('wiredep').stream;
 var browserSync = require('browser-sync').create();
 var runSequence = require('run-sequence');
+var zip = require('gulp-zip');
+var minify = require('gulp-minify');
 var opts = {};
 opts.DIST_DIR = './dist';
 opts.TEMP_TRANSPILED_REACT_DIR ='./temp';
@@ -63,6 +65,28 @@ gulp.task('react-browserify', function() {
 		  .pipe(browserSync.reload({
 		  	stream:true
 		  }));
+});
+
+gulp.task('package',function(){
+runSequence('package:bower-dep','package:minify-js','package:archive');
+});
+
+gulp.task('package:bower-dep',function(){
+	gulp.src('app/index.html')
+	.pipe(wiredep())
+	.pipe(gulp.dest('prod-dist'));
+});
+
+gulp.task('package:minify-js',function(){
+	gulp.src('dist/bundle.js')
+	 .pipe(uglify())
+	 .pipe(gulp.dest('prod-dist'));
+});
+
+gulp.task('package:archive',function(){
+	gulp.src('prod-dist/*')
+	.pipe(zip('build.zip'))
+	.pipe(gulp.dest('prod'));
 });
 
 gulp.task('browserSync:init',function(){
